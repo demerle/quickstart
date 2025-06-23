@@ -1,5 +1,6 @@
 package com.deeroot.quickstart.dao.impl;
 
+import com.deeroot.quickstart.TestDataUtil;
 import com.deeroot.quickstart.domain.Book;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,11 +25,7 @@ public class BookDaoImplTests {
 
     @Test
     public void testThatCreateBookGeneratesCorrectSql(){
-        Book book = Book.builder()
-                .isbn("978-1-2345-6789-0")
-                .title("The Shadow in the Attic")
-                .authorId(1L)
-                .build();
+        Book book = TestDataUtil.createTestBookA();
 
         underTest.create(book);
 
@@ -42,12 +39,40 @@ public class BookDaoImplTests {
 
     @Test
     public void testThatFindOneBookGeneratesCorrectSql(){
-        underTest.find("978-1-2345-6789-0");
+        underTest.findOne("978-1-2345-6789-0");
 
         verify(jdbcTemplate).query(
-                eq("SLECT isbn, title, author_id FROM books WHERE isbn = ? LIMIT 1"),
+                eq("SELECT isbn, title, author_id FROM books WHERE isbn = ? LIMIT 1"),
                 ArgumentMatchers.<BookDaoImpl.BookRowMapper>any(),
                 eq("978-1-2345-6789-0")
         );
+    }
+    @Test
+    public void testThatFindGeneratesCorrectSql(){
+        underTest.find();
+        verify(jdbcTemplate).query(
+                eq("SELECT isbn, title, author_id FROM books"),
+                ArgumentMatchers.<BookDaoImpl.BookRowMapper>any()
+        );
+    }
+
+    @Test
+    public void testThatUpdateGeneratesTheCorrectSql(){
+        Book book = TestDataUtil.createTestBookA();
+        underTest.update("978-1-2345-6789-0", book);
+        verify(jdbcTemplate).update(
+                "UPDATE books SET isbn = ?, title = ?, author_id = ? WHERE isbn = ?",
+                "978-1-2345-6789-0", "The Shadow in the Attic", 1L, "978-1-2345-6789-0"
+        );
+    }
+
+    @Test
+    public void testThatDeleteGeneratesCorrectSql(){
+        underTest.delete("978-1-2345-6789-0");
+        verify(jdbcTemplate).update(
+                "DELETE FROM books WHERE isbn = ?",
+                "978-1-2345-6789-0"
+        );
+
     }
 }

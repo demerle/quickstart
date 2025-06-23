@@ -2,6 +2,7 @@ package com.deeroot.quickstart.dao;
 
 import com.deeroot.quickstart.domain.Author;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface AuthorDao {
@@ -9,6 +10,9 @@ public interface AuthorDao {
 
     Optional<Author> findOne(long l);
 
+    List<Author> find();
 
+    void update(long id, Author author);
 
+    void delete(long l);
 }
